@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vandermier A. - Friendship</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Prompt:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --bg-color: #0b0b0b;
+            --card-bg: #141414;
+            --border-color: #262626;
+            --text-main: #f0f0f0;
+            --text-muted: #888888;
+            --accent: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            padding-bottom: 40px;
+        }
+
+        .header-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .btn-back {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 6px 14px;
+            font-size: 12px;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .btn-back:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .app-title {
+            font-family: 'Cinzel', serif;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--accent);
+        }
+
+        .tabs-nav {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 10px 5px;
+            font-size: 11px;
+            text-transform: uppercase;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            border-color: var(--accent);
+            color: var(--accent);
+            background-color: #1a1a1a;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section-box {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .box-title {
+            font-family: 'Cinzel', serif;
+            font-size: 14px;
+            letter-spacing: 1px;
+            color: var(--accent);
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            background-color: #000;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--accent);
+        }
+
+        .btn-action {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--accent);
+            color: var(--bg-color);
+            border: none;
+            font-weight: 500;
+            font-size: 13px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: opacity 0.3s;
+            margin-top: 5px;
+        }
+
+        .btn-action:hover {
+            opacity: 0.85;
+        }
+
+        .list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .user-card-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #000;
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .user-card-item:hover {
+            border-color: var(--accent);
+        }
+
+        .user-card-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar-sm {
+            width: 42px;
+            height: 42px;
+            min-width: 42px;
+            min-height: 42px;
+            border-radius: 50%;
+            object-fit: cover;
+            aspect-ratio: 1 / 1;
+            border: 1px solid var(--border-color);
+            background: #222;
+        }
+
+        .user-info h4 {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .user-info p {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 11px;
+            cursor: pointer;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            text-transform: uppercase;
+        }
+
+        .btn-sm:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-sm.danger:hover {
+            border-color: #ff4444;
+            color: #ff4444;
+        }
+
+        /* ห้องแชทเต็มจอ (Fullscreen Chat View) */
+        .chat-room-fullscreen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--bg-color);
+            z-index: 999;
+            display: none;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .chat-fullscreen-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .chat-fullscreen-messages {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-right: 5px;
+            margin-bottom: 15px;
+        }
+
+        .chat-msg {
+            max-width: 75%;
+            padding: 10px 14px;
+            font-size: 13px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            word-break: break-word;
+        }
+
+        .chat-msg.my-msg {
+            align-self: flex-end;
+            border-color: #444;
+            background: #1a1a1a;
+        }
+
+        .chat-fullscreen-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Modal หรูหรา */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .modal-title {
+            font-family: 'Cinzel', serif;
+            font-size: 18px;
+            margin-bottom: 12px;
+            color: var(--accent);
+        }
+
+        .modal-message {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .modal-btn {
+            padding: 8px 24px;
+            background: var(--accent);
+            color: var(--bg-color);
+            border: none;
+            font-size: 12px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header-nav">
+            <a href="home.html" class="btn-back">← กลับหน้าหลัก</a>
+            <h1 class="app-title">Friendship</h1>
+            <div style="width: 65px;"></div>
+        </div>
+
+        <div class="tabs-nav">
+            <button class="tab-btn active" onclick="switchTab('friends')">รายชื่อเพื่อน</button>
+            <button class="tab-btn" onclick="switchTab('chat')">ห้องแชท</button>
+            <button class="tab-btn" onclick="switchTab('add')">เพิ่มเพื่อน</button>
+        </div>
+
+        <!-- 1. รายชื่อเพื่อน -->
+        <div class="tab-content active" id="tab-friends">
+            <div class="section-box">
+                <h3 class="box-title">รายชื่อเพื่อนของฉัน</h3>
+                <div class="list-container" id="friendsListContainer">
+                    <p style="text-align: center; font-size: 12px; color: var(--text-muted);">กำลังโหลดรายชื่อเพื่อน...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. ห้องแชท -->
+        <div class="tab-content" id="tab-chat">
+            <div class="section-box">
+                <h3 class="box-title">ห้องแชททั้งหมด</h3>
+                <button class="btn-action" style="margin-bottom: 15px; background: transparent; border: 1px solid var(--accent); color: var(--accent);" onclick="openCreateGroupModal()">+ สร้างห้องแชทกลุ่ม</button>
+                <div class="list-container" id="chatRoomsContainer">
+                    <p style="text-align: center; font-size: 12px; color: var(--text-muted);">กำลังโหลดห้องแชท...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. เพิ่มเพื่อน -->
+        <div class="tab-content" id="tab-add">
+            <div class="section-box">
+                <h3 class="box-title">ค้นหาเพื่อนด้วย ID 8 หลัก</h3>
+                <div class="form-group">
+                    <input type="text" id="searchCustomId" maxlength="8" placeholder="กรอก ID ประจำตัว 8 หลัก">
+                </div>
+                <button class="btn-action" onclick="searchUserById()">ค้นหา</button>
+            </div>
+
+            <div class="section-box" id="searchResultBox" style="display: none;">
+                <h3 class="box-title">ผลการค้นหา</h3>
+                <div id="searchResultContent"></div>
+            </div>
+
+            <div class="section-box">
+                <h3 class="box-title">คำขอเป็นเพื่อนที่ได้รับ</h3>
+                <div class="list-container" id="friendRequestsContainer">
+                    <p style="text-align: center; font-size: 12px; color: var(--text-muted);">ไม่มีคำขอเป็นเพื่อน</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- หน้าต่างแชทเต็มจอ (Fullscreen Chat View) -->
+    <div class="chat-room-fullscreen" id="chatRoomFullscreen">
+        <div class="chat-fullscreen-header">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <img id="activeRoomAvatar" src="" class="avatar-sm" style="cursor: pointer;" onclick="openGroupSettings()" title="ตั้งค่ากลุ่ม">
+                <div>
+                    <h4 id="activeRoomName" style="font-size: 14px; color: var(--accent); cursor: pointer;" onclick="openGroupSettings()">ชื่อห้อง</h4>
+                    <p id="activeRoomMembersCount" style="font-size: 11px; color: var(--text-muted); cursor: pointer;" onclick="openGroupSettings()">สมาชิก: 0 คน</p>
+                </div>
+            </div>
+            <!-- ตัดลูกศรออก เหลือแค่คำว่า ย้อนกลับ -->
+            <button class="btn-sm" onclick="closeChatRoom()">ย้อนกลับ</button>
+        </div>
+        <div class="chat-fullscreen-messages" id="chatMessagesBox">
+            <!-- ข้อความแชท -->
+        </div>
+        <div class="chat-fullscreen-input">
+            <input type="text" id="chatInputMessage" placeholder="พิมพ์ข้อความ..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
+            <button class="btn-action" style="width: auto; padding: 0 20px; margin-top:0;" onclick="sendChatMessage()">ส่ง</button>
+        </div>
+    </div>
+
+    <!-- Modal สร้างกลุ่มแชท -->
+    <div class="modal-overlay" id="createGroupModal">
+        <div class="modal-box">
+            <h3 class="modal-title">สร้างห้องแชทกลุ่ม</h3>
+            <div class="form-group" style="text-align: left;">
+                <label>ชื่อกลุ่ม</label>
+                <input type="text" id="groupNameInput" placeholder="ตั้งชื่อกลุ่ม...">
+            </div>
+            <div class="form-group" style="text-align: left;">
+                <label>รูปภาพกลุ่ม (แกลเลอรี)</label>
+                <input type="file" id="groupAvatarFile" accept="image/*" style="display:none;" onchange="previewGroupAvatar(this)">
+                <button class="btn-action" style="background:#000; border:1px solid var(--border-color); color:var(--text-main);" onclick="document.getElementById('groupAvatarFile').click()">📁 เลือกรูปภาพกลุ่ม</button>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button class="modal-btn" style="background:transparent; border:1px solid var(--border-color); color:var(--text-muted);" onclick="document.getElementById('createGroupModal').classList.remove('active')">ยกเลิก</button>
+                <button class="modal-btn" style="flex:1;" onclick="createChatGroup()">สร้างกลุ่ม</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal ตั้งค่ากลุ่ม -->
+    <div class="modal-overlay" id="groupSettingsModal">
+        <div class="modal-box">
+            <h3 class="modal-title">ตั้งค่ากลุ่ม</h3>
+            <div class="form-group" style="text-align: left;">
+                <label>แก้ไขชื่อกลุ่ม</label>
+                <input type="text" id="editGroupNameInput">
+            </div>
+            <div class="form-group" style="text-align: left;">
+                <label>เปลี่ยนรูปกลุ่ม</label>
+                <input type="file" id="editGroupAvatarFile" accept="image/*" style="display:none;" onchange="previewEditGroupAvatar(this)">
+                <button class="btn-action" style="background:#000; border:1px solid var(--border-color); color:var(--text-main);" onclick="document.getElementById('editGroupAvatarFile').click()">📁 เลือกรูปใหม่</button>
+            </div>
+            <button class="btn-action" onclick="saveGroupSettings()">บันทึกการเปลี่ยนแปลงกลุ่ม</button>
+
+            <hr style="border-color: var(--border-color); margin: 20px 0;">
+
+            <h4 style="font-size: 13px; text-align: left; margin-bottom: 10px; color: var(--accent);">สมาชิกในกลุ่ม</h4>
+            <div class="list-container" id="groupMembersList" style="max-height: 150px; overflow-y: auto; margin-bottom: 15px;"></div>
+
+            <h4 style="font-size: 13px; text-align: left; margin-bottom: 10px; color: var(--accent);">เพิ่มเพื่อนเข้ากลุ่ม</h4>
+            <div class="list-container" id="addMemberFriendsList" style="max-height: 150px; overflow-y: auto; margin-bottom: 15px;"></div>
+
+            <button class="modal-btn" style="width: 100%; background: #333;" onclick="document.getElementById('groupSettingsModal').classList.remove('active')">ปิดหน้าต่าง</button>
+        </div>
+    </div>
+
+    <!-- Modal ยืนยันการลบเพื่อน -->
+    <div class="modal-overlay" id="confirmDeleteModal">
+        <div class="modal-box">
+            <h3 class="modal-title">ยืนยันการลบเพื่อน</h3>
+            <p class="modal-message" id="confirmDeleteMessage">คุณต้องการลบเพื่อนคนนี้ใช่หรือไม่? ประวัติการแชทจะยังคงอยู่</p>
+            <div style="display: flex; gap: 10px;">
+                <button class="modal-btn" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); flex: 1;" onclick="closeConfirmDeleteModal()">ยกเลิก</button>
+                <button class="modal-btn" style="flex: 1; background: #ff4444; color: #fff;" id="confirmDeleteBtn">ยืนยันลบ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal แจ้งเตือนทั่วไป -->
+    <div class="modal-overlay" id="customModal">
+        <div class="modal-box">
+            <h3 class="modal-title" id="modalTitle">แจ้งเตือน</h3>
+            <p class="modal-message" id="modalMessage">ข้อความแจ้งเตือน...</p>
+            <button class="modal-btn" onclick="closeModal()">ตกลง</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { supabase } from './supabase-config.js';
+
+        let currentUser = null;
+        let userData = null;
+        let currentActiveRoomId = null;
+        let currentRoomIsGroup = false;
+        let newGroupAvatarBase64 = null;
+        let editGroupAvatarBase64 = null;
+        let messageSubscription = null;
+        let pendingDeleteFriendId = null;
+
+        window.showModal = function(title, message) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMessage').innerText = message;
+            document.getElementById('customModal').classList.add('active');
+        }
+
+        window.closeModal = function() {
+            document.getElementById('customModal').classList.remove('active');
+        }
+
+        window.switchTab = function(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            if (tabName === 'friends') {
+                document.querySelector('button[onclick="switchTab(\'friends\')"]').classList.add('active');
+                document.getElementById('tab-friends').classList.add('active');
+                fetchFriends();
+            } else if (tabName === 'chat') {
+                document.querySelector('button[onclick="switchTab(\'chat\')"]').classList.add('active');
+                document.getElementById('tab-chat').classList.add('active');
+                fetchChatRooms();
+            } else if (tabName === 'add') {
+                document.querySelector('button[onclick="switchTab(\'add\')"]').classList.add('active');
+                document.getElementById('tab-add').classList.add('active');
+                fetchFriendRequests();
+            }
+        }
+
+        async function initAuth() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                window.location.href = 'index.html';
+                return;
+            }
+            currentUser = session.user;
+
+            let { data } = await supabase.from('profiles').select('*').eq('id', currentUser.id).maybeSingle();
+            if (!data) {
+                window.location.href = 'profile.html';
+                return;
+            }
+            userData = data;
+            fetchFriends();
+        }
+
+        async function fetchFriends() {
+            const { data } = await supabase
+                .from('friends')
+                .select('*')
+                .or(`user_id.eq.${currentUser.id},friend_id.eq.${currentUser.id}`)
+                .eq('status', 'accepted');
+
+            const container = document.getElementById('friendsListContainer');
+            if (!data || data.length === 0) {
+                container.innerHTML = `<p style="text-align: center; font-size: 12px; color: var(--text-muted);">ยังไม่มีรายชื่อเพื่อน</p>`;
+                return;
+            }
+
+            let friendIds = data.map(f => f.user_id === currentUser.id ? f.friend_id : f.user_id);
+            const { data: profiles } = await supabase.from('profiles').select('*').in('id', friendIds);
+
+            if (!profiles || profiles.length === 0) {
+                container.innerHTML = `<p style="text-align: center; font-size: 12px; color: var(--text-muted);">ยังไม่มีรายชื่อเพื่อน</p>`;
+                return;
+            }
+
+            container.innerHTML = profiles.map(p => `
+                <div class="user-card-item">
+                    <div class="user-card-left">
+                        <img src="${p.avatar_url || 'https://via.placeholder.com/150/000000/FFFFFF?text=V'}" class="avatar-sm">
+                        <div class="user-info">
+                            <h4>${p.full_name || p.name}</h4>
+                            <p>ID: ${p.custom_id} | แรงค์: ${p.rank_name || 'Novice'}</p>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:6px;">
+                        <button class="btn-sm" onclick="startDirectChat('${p.id}', '${p.full_name || p.name}', '${p.avatar_url || ''}')">แชท</button>
+                        <button class="btn-sm danger" onclick="confirmRemoveFriend('${p.id}', '${p.full_name || p.name}')">ลบเพื่อน</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.confirmRemoveFriend = function(friendId, friendName) {
+            pendingDeleteFriendId = friendId;
+            document.getElementById('confirmDeleteMessage').innerText = `คุณต้องการลบ "${friendName}" ออกจากรายชื่อเพื่อนใช่หรือไม่? (ประวัติการแชทจะยังคงอยู่)`;
+            document.getElementById('confirmDeleteModal').classList.add('active');
+        }
+
+        window.closeConfirmDeleteModal = function() {
+            pendingDeleteFriendId = null;
+            document.getElementById('confirmDeleteModal').classList.remove('active');
+        }
+
+        document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
+            if (!pendingDeleteFriendId) return;
+            const friendId = pendingDeleteFriendId;
+            closeConfirmDeleteModal();
+
+            await supabase.from('friends').delete().or(`and(user_id.eq.${currentUser.id},friend_id.eq.${friendId}),and(user_id.eq.${friendId},friend_id.eq.${currentUser.id})`);
+            fetchFriends();
+            showModal('สำเร็จ', 'ลบเพื่อนเรียบร้อยแล้ว');
+        });
+
+        async function fetchChatRooms() {
+            const { data: memberRooms } = await supabase.from('chat_room_members').select('room_id').eq('user_id', currentUser.id);
+            if (!memberRooms || memberRooms.length === 0) {
+                document.getElementById('chatRoomsContainer').innerHTML = `<p style="text-align: center; font-size: 12px; color: var(--text-muted);">ยังไม่มีห้องแชท</p>`;
+                return;
+            }
+
+            let roomIds = memberRooms.map(m => m.room_id);
+            const { data: rooms } = await supabase.from('chat_rooms').select('*').in('id', roomIds).order('created_at', { ascending: false });
+
+            const container = document.getElementById('chatRoomsContainer');
+            if (!rooms || rooms.length === 0) {
+                container.innerHTML = `<p style="text-align: center; font-size: 12px; color: var(--text-muted);">ยังไม่มีห้องแชท</p>`;
+                return;
+            }
+
+            // สำหรับห้องแชทเดี่ยว ให้ดึงรูปโปรไฟล์ของเพื่อนอีกคนมาแสดงแทนรูปห้อง
+            let roomHtmlList = [];
+            for (let r of rooms) {
+                let roomAvatar = r.avatar_url;
+                let roomName = r.name || 'แชท';
+
+                if (!r.is_group) {
+                    const { data: members } = await supabase.from('chat_room_members').select('user_id').eq('room_id', r.id);
+                    if (members) {
+                        const otherMember = members.find(m => m.user_id !== currentUser.id);
+                        if (otherMember) {
+                            const { data: profile } = await supabase.from('profiles').select('name, full_name, avatar_url').eq('id', otherMember.user_id).maybeSingle();
+                            if (profile) {
+                                roomName = profile.full_name || profile.name;
+                                roomAvatar = profile.avatar_url;
+                            }
+                        }
+                    }
+                }
+
+                roomHtmlList.push(`
+                    <div class="user-card-item" onclick="openChatRoom('${r.id}', '${roomName}', ${r.is_group}, '${roomAvatar || ''}')">
+                        <div class="user-card-left">
+                            <img src="${roomAvatar || 'https://via.placeholder.com/150/000000/FFFFFF?text=Chat'}" class="avatar-sm">
+                            <div class="user-info">
+                                <h4>${roomName}</h4>
+                                <p>${r.is_group ? 'ห้องสนทนากลุ่ม' : 'แชทเดี่ยว'}</p>
+                            </div>
+                        </div>
+                    </div>
+                `);
+            }
+
+            container.innerHTML = roomHtmlList.join('');
+        }
+
+        window.startDirectChat = async function(targetUserId, targetName, targetAvatar) {
+            const { data: myRooms } = await supabase.from('chat_room_members').select('room_id').eq('user_id', currentUser.id);
+            const myRoomIds = myRooms ? myRooms.map(r => r.room_id) : [];
+
+            let targetRoom = null;
+            if (myRoomIds.length > 0) {
+                const { data: existingRooms } = await supabase.from('chat_rooms').select('id, name, avatar_url, is_group').eq('is_group', false).in('id', myRoomIds);
+                if (existingRooms) {
+                    for (let r of existingRooms) {
+                        const { data: members } = await supabase.from('chat_room_members').select('user_id').eq('room_id', r.id);
+                        if (members && members.some(m => m.user_id === targetUserId)) {
+                            targetRoom = r;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!targetRoom) {
+                const { data: newRoom, error } = await supabase.from('chat_rooms').insert([{ 
+                    name: targetName, 
+                    is_group: false, 
+                    created_by: currentUser.id 
+                }]).select().single();
+
+                if (error) {
+                    showModal('ข้อผิดพลาด', 'ไม่สามารถสร้างห้องแชทได้: ' + error.message);
+                    return;
+                }
+                targetRoom = newRoom;
+                await supabase.from('chat_room_members').insert([
+                    { room_id: targetRoom.id, user_id: currentUser.id },
+                    { room_id: targetRoom.id, user_id: targetUserId }
+                ]);
+            }
+
+            openChatRoom(targetRoom.id, targetName, targetRoom.is_group, targetAvatar);
+        }
+
+        window.openChatRoom = async function(roomId, roomName, isGroup, avatarUrl) {
+            currentActiveRoomId = roomId;
+            currentRoomIsGroup = isGroup;
+
+            // ถ้าเป็นแชทเดี่ยว ให้ดึงรูปโปรไฟล์ของเพื่อนอีกคนมาแสดงโดยตรง
+            if (!isGroup) {
+                const { data: members } = await supabase.from('chat_room_members').select('user_id').eq('room_id', roomId);
+                if (members) {
+                    const otherMember = members.find(m => m.user_id !== currentUser.id);
+                    if (otherMember) {
+                        const { data: profile } = await supabase.from('profiles').select('name, full_name, avatar_url').eq('id', otherMember.user_id).maybeSingle();
+                        if (profile) {
+                            roomName = profile.full_name || profile.name;
+                            avatarUrl = profile.avatar_url;
+                        }
+                    }
+                }
+                // กรณีแชทเดี่ยว ซ่อนจำนวนสมาชิก
+                document.getElementById('activeRoomMembersCount').style.display = 'none';
+            } else {
+                // กรณีแชทกลุ่ม แสดงจำนวนสมาชิกตามปกติ
+                document.getElementById('activeRoomMembersCount').style.display = 'block';
+                await updateRoomMembersCount();
+            }
+
+            document.getElementById('activeRoomName').innerText = roomName;
+            document.getElementById('activeRoomAvatar').src = avatarUrl || 'https://via.placeholder.com/150/000000/FFFFFF?text=Chat';
+            document.getElementById('chatRoomFullscreen').style.display = 'flex';
+
+            await fetchMessages();
+            subscribeToMessages();
+        }
+
+        window.closeChatRoom = function() {
+            currentActiveRoomId = null;
+            document.getElementById('chatRoomFullscreen').style.display = 'none';
+            if (messageSubscription) {
+                supabase.removeChannel(messageSubscription);
+                messageSubscription = null;
+            }
+            fetchChatRooms();
+        }
+
+        async function updateRoomMembersCount() {
+            if (!currentActiveRoomId || !currentRoomIsGroup) return;
+            const { count } = await supabase.from('chat_room_members').select('*', { count: 'exact', head: true }).eq('room_id', currentActiveRoomId);
+            document.getElementById('activeRoomMembersCount').innerText = `สมาชิก: ${count || 0} คน`;
+        }
+
+        async function fetchMessages() {
+            if (!currentActiveRoomId) return;
+            const { data } = await supabase.from('chat_messages').select('*').eq('room_id', currentActiveRoomId).order('created_at', { ascending: true });
+
+            const box = document.getElementById('chatMessagesBox');
+            box.innerHTML = (data || []).map(m => `
+                <div class="chat-msg ${m.sender_id === currentUser.id ? 'my-msg' : ''}">
+                    <p>${m.message}</p>
+                </div>
+            `).join('');
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function subscribeToMessages() {
+            if (messageSubscription) supabase.removeChannel(messageSubscription);
+
+            messageSubscription = supabase
+                .channel(`room:${currentActiveRoomId}`)
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `room_id=eq.${currentActiveRoomId}` }, payload => {
+                    const newMsg = payload.new;
+                    const box = document.getElementById('chatMessagesBox');
+                    box.innerHTML += `
+                        <div class="chat-msg ${newMsg.sender_id === currentUser.id ? 'my-msg' : ''}">
+                            <p>${newMsg.message}</p>
+                        </div>
+                    `;
+                    box.scrollTop = box.scrollHeight;
+                })
+                .subscribe();
+        }
+
+        window.sendChatMessage = async function() {
+            const input = document.getElementById('chatInputMessage');
+            const message = input.value.trim();
+            if (!message || !currentActiveRoomId) return;
+
+            await supabase.from('chat_messages').insert([{
+                room_id: currentActiveRoomId,
+                sender_id: currentUser.id,
+                message: message
+            }]);
+
+            input.value = '';
+        }
+
+        window.openCreateGroupModal = function() {
+            document.getElementById('groupNameInput').value = '';
+            newGroupAvatarBase64 = null;
+            document.getElementById('createGroupModal').classList.add('active');
+        }
+
+        window.previewGroupAvatar = function(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = e => { newGroupAvatarBase64 = e.target.result; };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        window.createChatGroup = async function() {
+            const name = document.getElementById('groupNameInput').value.trim();
+            if (!name) {
+                showModal('ข้อผิดพลาด', 'กรุณากรอกชื่อกลุ่ม');
+                return;
+            }
+
+            const { data: newRoom, error } = await supabase.from('chat_rooms').insert([{
+                name: name,
+                is_group: true,
+                avatar_url: newGroupAvatarBase64,
+                created_by: currentUser.id
+            }]).select().single();
+
+            if (error) {
+                showModal('ข้อผิดพลาด', error.message);
+                return;
+            }
+
+            await supabase.from('chat_room_members').insert([{
+                room_id: newRoom.id,
+                user_id: currentUser.id
+            }]);
+
+            document.getElementById('createGroupModal').classList.remove('active');
+            switchTab('chat');
+            showModal('สำเร็จ', 'สร้างกลุ่มแชทเรียบร้อยแล้ว');
+        }
+
+        window.openGroupSettings = async function() {
+            if (!currentRoomIsGroup) {
+                showModal('แจ้งเตือน', 'การตั้งค่านี้สำหรับห้องแชทกลุ่มเท่านั้น');
+                return;
+            }
+
+            const { data: room } = await supabase.from('chat_rooms').select('*').eq('id', currentActiveRoomId).single();
+            document.getElementById('editGroupNameInput').value = room.name;
+            editGroupAvatarBase64 = null;
+
+            const { data: members } = await supabase.from('chat_room_members').select('user_id').eq('room_id', currentActiveRoomId);
+            const memberIds = members.map(m => m.user_id);
+            const { data: memberProfiles } = await supabase.from('profiles').select('*').in('id', memberIds);
+
+            document.getElementById('groupMembersList').innerHTML = memberProfiles.map(p => `
+                <div class="user-card-item">
+                    <div class="user-card-left">
+                        <img src="${p.avatar_url || 'https://via.placeholder.com/150/000000/FFFFFF?text=V'}" class="avatar-sm">
+                        <div class="user-info">
+                            <h4>${p.full_name || p.name}</h4>
+                            <p>ID: ${p.custom_id}</p>
+                        </div>
+                    </div>
+                    ${p.id !== currentUser.id ? `<button class="btn-sm danger" onclick="removeMemberFromGroup('${p.id}')">ลบออก</button>` : '<span style="font-size:11px; color:var(--text-muted);">คุณ</span>'}
+                </div>
+            `).join('');
+
+            const { data: myFriends } = await supabase.from('friends').select('*').or(`user_id.eq.${currentUser.id},friend_id.eq.${currentUser.id}`).eq('status', 'accepted');
+            const friendIds = (myFriends || []).map(f => f.user_id === currentUser.id ? f.friend_id : f.user_id);
+            const notInGroupIds = friendIds.filter(id => !memberIds.includes(id));
+
+            if (notInGroupIds.length > 0) {
+                const { data: inviteProfiles } = await supabase.from('profiles').select('*').in('id', notInGroupIds);
+                document.getElementById('addMemberFriendsList').innerHTML = inviteProfiles.map(p => `
+                    <div class="user-card-item">
+                        <div class="user-card-left">
+                            <img src="${p.avatar_url || 'https://via.placeholder.com/150/000000/FFFFFF?text=V'}" class="avatar-sm">
+                            <div class="user-info">
+                                <h4>${p.full_name || p.name}</h4>
+                                <p>ID: ${p.custom_id}</p>
+                            </div>
+                        </div>
+                        <button class="btn-sm" onclick="addMemberToGroup('${p.id}')">เชิญ</button>
+                    </div>
+                `).join('');
+            } else {
+                document.getElementById('addMemberFriendsList').innerHTML = `<p style="font-size:12px; color:var(--text-muted); text-align:center;">ไม่มีเพื่อนที่สามารถเชิญเพิ่มได้</p>`;
+            }
+
+            document.getElementById('groupSettingsModal').classList.add('active');
+        }
+
+        window.previewEditGroupAvatar = function(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = e => { editGroupAvatarBase64 = e.target.result; };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        window.saveGroupSettings = async function() {
+            const newName = document.getElementById('editGroupNameInput').value.trim();
+            if (!newName) return;
+
+            let updateObj = { name: newName };
+            if (editGroupAvatarBase64) updateObj.avatar_url = editGroupAvatarBase64;
+
+            await supabase.from('chat_rooms').update(updateObj).eq('id', currentActiveRoomId);
+            document.getElementById('activeRoomName').innerText = newName;
+            if (editGroupAvatarBase64) document.getElementById('activeRoomAvatar').src = editGroupAvatarBase64;
+
+            document.getElementById('groupSettingsModal').classList.remove('active');
+            showModal('สำเร็จ', 'บันทึกการตั้งค่ากลุ่มเรียบร้อยแล้ว');
+        }
+
+        window.addMemberToGroup = async function(userId) {
+            await supabase.from('chat_room_members').insert([{ room_id: currentActiveRoomId, user_id: userId }]);
+            openGroupSettings();
+            updateRoomMembersCount();
+        }
+
+        window.removeMemberFromGroup = async function(userId) {
+            await supabase.from('chat_room_members').delete().eq('room_id', currentActiveRoomId).eq('user_id', userId);
+            openGroupSettings();
+            updateRoomMembersCount();
+        }
+
+        window.searchUserById = async function() {
+            const customId = document.getElementById('searchCustomId').value.trim();
+            if (customId.length !== 8) {
+                showModal('ข้อผิดพลาด', 'กรุณากรอก ID ประจำตัวให้ครบ 8 หลัก');
+                return;
+            }
+
+            const { data } = await supabase.from('profiles').select('*').eq('custom_id', customId).maybeSingle();
+            const box = document.getElementById('searchResultBox');
+            const content = document.getElementById('searchResultContent');
+            box.style.display = 'block';
+
+            if (!data || data.id === currentUser.id) {
+                content.innerHTML = `<p style="font-size: 12px; color: var(--text-muted);">ไม่พบผู้ใช้ที่มี ID นี้</p>`;
+                return;
+            }
+
+            content.innerHTML = `
+                <div class="user-card-item" style="margin-bottom: 10px;">
+                    <div class="user-card-left">
+                        <img src="${data.avatar_url || 'https://via.placeholder.com/150/000000/FFFFFF?text=V'}" class="avatar-sm">
+                        <div class="user-info">
+                            <h4>${data.full_name || data.name}</h4>
+                            <p>ID: ${data.custom_id} | วันเกิด: ${data.birthday || 'ไม่ระบุ'}</p>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-action" onclick="sendFriendRequest('${data.id}')">ส่งคำขอเป็นเพื่อน</button>
+            `;
+        }
+
+        window.sendFriendRequest = async function(friendId) {
+            const { error } = await supabase.from('friends').insert([{ user_id: currentUser.id, friend_id: friendId, status: 'pending' }]);
+            if (error) {
+                showModal('แจ้งเตือน', 'คุณได้ส่งคำขอหรือเป็นเพื่อนกับคนนี้ไปแล้ว');
+            } else {
+                showModal('สำเร็จ', 'ส่งคำขอเป็นเพื่อนเรียบร้อยแล้ว');
+            }
+        }
+
+        async function fetchFriendRequests() {
+            const { data } = await supabase.from('friends').select('*').eq('friend_id', currentUser.id).eq('status', 'pending');
+            const container = document.getElementById('friendRequestsContainer');
+            if (!data || data.length === 0) {
+                container.innerHTML = `<p style="text-align: center; font-size: 12px; color: var(--text-muted);">ไม่มีคำขอเป็นเพื่อน</p>`;
+                return;
+            }
+
+            let senderIds = data.map(f => f.user_id);
+            const { data: senders } = await supabase.from('profiles').select('*').in('id', senderIds);
+
+            container.innerHTML = senders.map(s => `
+                <div class="user-card-item">
+                    <div class="user-card-left">
+                        <img src="${s.avatar_url || 'https://via.placeholder.com/150/000000/FFFFFF?text=V'}" class="avatar-sm">
+                        <div class="user-info">
+                            <h4>${s.full_name || s.name}</h4>
+                            <p>ID: ${s.custom_id}</p>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:6px;">
+                        <button class="btn-sm" onclick="respondRequest('${s.id}', 'accepted')">ยอมรับ</button>
+                        <button class="btn-sm danger" onclick="respondRequest('${s.id}', 'rejected')">ปฏิเสธ</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.respondRequest = async function(senderId, status) {
+            if (status === 'accepted') {
+                await supabase.from('friends').update({ status: 'accepted' }).eq('user_id', senderId).eq('friend_id', currentUser.id);
+            } else {
+                await supabase.from('friends').delete().eq('user_id', senderId).eq('friend_id', currentUser.id);
+            }
+            fetchFriendRequests();
+        }
+
+        initAuth();
+    </script>
+</body>
+</html>
