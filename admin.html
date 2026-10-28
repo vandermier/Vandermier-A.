@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vandermier A. - Admin Panel</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --bg-color: #0b0b0b;
+            --card-bg: #141414;
+            --border-color: #262626;
+            --text-main: #f0f0f0;
+            --text-muted: #888888;
+            --accent: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            padding-bottom: 40px;
+        }
+
+        .header-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .btn-back {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 6px 14px;
+            font-size: 12px;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .btn-back:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .app-title {
+            font-family: 'Cinzel', serif;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
+
+        .section-box {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .box-title {
+            font-family: 'Cinzel', serif;
+            font-size: 14px;
+            letter-spacing: 1px;
+            color: var(--accent);
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .admin-menu-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .admin-card {
+            background: #000;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-decoration: none;
+            color: var(--text-main);
+            transition: all 0.3s ease;
+        }
+
+        .admin-card:hover {
+            border-color: var(--accent);
+            background: #111;
+        }
+
+        .admin-card-info h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 15px;
+            color: var(--accent);
+            margin-bottom: 4px;
+        }
+
+        .admin-card-info p {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .admin-card i {
+            font-size: 18px;
+            color: var(--text-muted);
+            transition: color 0.3s;
+        }
+
+        .admin-card:hover i {
+            color: var(--accent);
+        }
+
+        /* Modal ดีไซน์หรูหรา */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            width: 90%;
+            max-width: 380px;
+            text-align: center;
+        }
+
+        .modal-title {
+            font-family: 'Cinzel', serif;
+            font-size: 18px;
+            margin-bottom: 12px;
+            color: var(--accent);
+        }
+
+        .modal-message {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .modal-btn {
+            padding: 8px 24px;
+            background: var(--accent);
+            color: var(--bg-color);
+            border: none;
+            font-size: 12px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+    <!-- FontAwesome สำหรับไอคอนเมนู -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="container">
+        <!-- Header Navigation -->
+        <div class="header-nav">
+            <a href="home.html" class="btn-back">กลับหน้าหลัก</a>
+            <h1 class="app-title">Admin Panel</h1>
+            <div style="width: 75px;"></div>
+        </div>
+
+        <!-- Admin Control Center -->
+        <div class="section-box">
+            <h3 class="box-title">ระบบจัดการสถาบัน</h3>
+            <p style="font-size: 11px; color: var(--text-muted); text-align: center; margin-bottom: 20px;">
+                แผงควบคุมสำหรับผู้ดูแลระบบ Vandermier Academy เท่านั้น
+            </p>
+
+            <div class="admin-menu-grid">
+                <!-- จัดการ Store -->
+                <a href="admin-store.html" class="admin-card">
+                    <div class="admin-card-info">
+                        <h3>จัดการร้านค้า (Store)</h3>
+                        <p>เพิ่ม, แก้ไข หรือลบสินค้าในร้านค้าทั่วไป</p>
+                    </div>
+                    <i class="fa-solid fa-store"></i>
+                </a>
+
+                <!-- จัดการผู้เล่น -->
+                <a href="admin-users.html" class="admin-card">
+                    <div class="admin-card-info">
+                        <h3>จัดการผู้เล่น (Users)</h3>
+                        <p>แก้ไขข้อมูลชัยชนะ, แรงค์, หอพัก และชมรมของผู้เล่น</p>
+                    </div>
+                    <i class="fa-solid fa-users-gear"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal แจ้งเตือนทั่วไป -->
+    <div class="modal-overlay" id="customModal">
+        <div class="modal-box">
+            <h3 class="modal-title" id="modalTitle">แจ้งเตือน</h3>
+            <p class="modal-message" id="modalMessage">ข้อความแจ้งเตือน...</p>
+            <button class="modal-btn" onclick="closeModal()">ตกลง</button>
+        </div>
+    </div>
+
+    <!-- Script ตรวจสอบสิทธิ์ Admin -->
+    <script type="module">
+        import { supabase } from './supabase-config.js';
+
+        window.showModal = function(title, message) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMessage').innerText = message;
+            document.getElementById('customModal').classList.add('active');
+        }
+
+        window.closeModal = function() {
+            document.getElementById('customModal').classList.remove('active');
+            window.location.href = 'home.html';
+        }
+
+        async function verifyAdmin() {
+            const { data: { session }, error } = await supabase.auth.getSession();
+            if (error || !session) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // ตรวจสอบจาก Email แอดมินตามเงื่อนไขระบบ
+            if (session.user.email !== 'adminzelisanya@gmail.com') {
+                showModal('สิทธิ์การเข้าถึงถูกปฏิเสธ', 'คุณไม่มีสิทธิ์ใช้งานหน้าผู้ดูแลระบบนี้');
+                return;
+            }
+        }
+
+        verifyAdmin();
+    </script>
+</body>
+</html>
