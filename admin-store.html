@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vandermier A. - Manage Store</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #0b0b0b;
+            --card-bg: #141414;
+            --border-color: #262626;
+            --text-main: #f0f0f0;
+            --text-muted: #888888;
+            --accent: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            padding-bottom: 40px;
+        }
+
+        .header-nav {
+            display: grid;
+            grid-template-columns: 110px 1fr;
+            align-items: center;
+            margin-bottom: 25px;
+            gap: 10px;
+        }
+
+        .btn-back {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 8px 10px;
+            font-size: 11px;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            transition: all 0.3s;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .btn-back:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .app-title {
+            font-family: 'Cinzel', serif;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--accent);
+            text-transform: uppercase;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .section-box {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .box-title {
+            font-family: 'Cinzel', serif;
+            font-size: 14px;
+            letter-spacing: 1px;
+            color: var(--accent);
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px 12px;
+            background-color: #000;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--accent);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-upload-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #000;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            text-align: center;
+            font-size: 13px;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        .file-upload-btn:hover {
+            border-color: var(--accent);
+        }
+
+        textarea {
+            resize: vertical;
+            height: 70px;
+        }
+
+        .btn-action {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--accent);
+            color: var(--bg-color);
+            border: none;
+            font-weight: 500;
+            font-size: 13px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: opacity 0.3s;
+            margin-top: 5px;
+        }
+
+        .btn-action:hover {
+            opacity: 0.85;
+        }
+
+        .store-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .store-card {
+            background: #000;
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: border-color 0.2s;
+        }
+
+        .store-card:hover {
+            border-color: var(--accent);
+        }
+
+        .item-img {
+            width: 100%;
+            height: 90px;
+            object-fit: cover;
+            border: 1px solid var(--border-color);
+            background: #111;
+            margin-bottom: 8px;
+        }
+
+        .item-name {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--accent);
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .item-price {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .item-effect {
+            font-size: 10px;
+            color: #4ade80;
+            margin-bottom: 8px;
+        }
+
+        .btn-delete {
+            width: 100%;
+            padding: 6px;
+            background: transparent;
+            border: 1px solid #ff4444;
+            color: #ff4444;
+            font-size: 11px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.3s;
+        }
+
+        .btn-delete:hover {
+            background: #ff4444;
+            color: #fff;
+        }
+
+        /* Modal ดีไซน์หรูหรา */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            width: 90%;
+            max-width: 380px;
+            text-align: center;
+        }
+
+        .modal-title {
+            font-family: 'Cinzel', serif;
+            font-size: 18px;
+            margin-bottom: 12px;
+            color: var(--accent);
+        }
+
+        .modal-message {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .modal-btn {
+            padding: 8px 24px;
+            background: var(--accent);
+            color: var(--bg-color);
+            border: none;
+            font-size: 12px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Header Navigation -->
+        <div class="header-nav">
+            <a href="admin.html" class="btn-back">กลับหน้าแอดมิน</a>
+            <h1 class="app-title">Manage Store</h1>
+        </div>
+
+        <!-- ฟอร์มเพิ่มสินค้าใหม่ -->
+        <div class="section-box">
+            <h3 class="box-title">ลงประกาศสินค้าใหม่</h3>
+            <div class="form-group">
+                <label>รูปภาพสินค้า (เลือกจากแกลเลอรี)</label>
+                <label for="itemImageFile" class="file-upload-btn" id="fileLabel">📁 เลือกรูปภาพสินค้า...</label>
+                <input type="file" id="itemImageFile" accept="image/*">
+            </div>
+            <div class="form-group">
+                <label>ชื่อสินค้า</label>
+                <input type="text" id="itemName" placeholder="ระบุชื่อสินค้า...">
+            </div>
+            <div class="form-group">
+                <label>ราคา (Silver)</label>
+                <input type="number" id="itemPrice" placeholder="ระบุราคา เช่น 500">
+            </div>
+            <div class="form-group">
+                <label>คุณสมบัติการฟื้นฟูสเตตัส</label>
+                <select id="effectType">
+                    <option value="none">ไม่มีผลฟื้นฟู (ไอเท็มทั่วไป)</option>
+                    <option value="energy">ฟื้นฟูหลอดพลังงาน (Energy)</option>
+                    <option value="food">ฟื้นฟูหลอดอาหาร (Food)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>จำนวนหน่วยที่ฟื้นฟู (หน่วย)</label>
+                <input type="number" id="effectValue" value="25" min="1" placeholder="ระบุตัวเลข เช่น 25">
+            </div>
+            <div class="form-group">
+                <label>รายละเอียดสินค้า</label>
+                <textarea id="itemDesc" placeholder="อธิบายคุณสมบัติสินค้า..."></textarea>
+            </div>
+            <button class="btn-action" onclick="createStoreItem()">วางขายสินค้า</button>
+        </div>
+
+        <!-- รายการสินค้าที่มีในร้านปัจจุบัน -->
+        <div class="section-box">
+            <h3 class="box-title">รายการสินค้าในระบบ</h3>
+            <div class="store-grid" id="adminStoreGrid">
+                <p style="grid-column: span 2; text-align: center; font-size: 12px; color: var(--text-muted);">กำลังโหลดรายการสินค้า...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal แจ้งเตือนทั่วไป -->
+    <div class="modal-overlay" id="customModal">
+        <div class="modal-box">
+            <h3 class="modal-title" id="modalTitle">แจ้งเตือน</h3>
+            <p class="modal-message" id="modalMessage">ข้อความแจ้งเตือน...</p>
+            <button class="modal-btn" onclick="closeModal()">ตกลง</button>
+        </div>
+    </div>
+
+    <!-- Script ควบคุมระบบจัดการร้านค้า -->
+    <script type="module">
+        import { supabase } from './supabase-config.js';
+
+        let currentUser = null;
+        let selectedItemBase64 = null;
+
+        window.showModal = function(title, message) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMessage').innerText = message;
+            document.getElementById('customModal').classList.add('active');
+        }
+
+        window.closeModal = function() {
+            document.getElementById('customModal').classList.remove('active');
+        }
+
+        async function initAdminStore() {
+            const { data: { session }, error } = await supabase.auth.getSession();
+            if (error || !session) {
+                window.location.href = 'index.html';
+                return;
+            }
+            currentUser = session.user;
+
+            if (currentUser.email !== 'adminzelisanya@gmail.com') {
+                window.location.href = 'home.html';
+                return;
+            }
+
+            fetchStoreItems();
+        }
+
+        // จัดการเลือกไฟล์รูปภาพสินค้าจากแกลเลอรี
+        document.getElementById('itemImageFile').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 2 * 1024 * 1024) {
+                    showModal('ไฟล์ใหญ่เกินไป', 'กรุณาเลือกรูปภาพที่มีขนาดน้อยกว่า 2MB');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(uploadEvent) {
+                    selectedItemBase64 = uploadEvent.target.result;
+                    document.getElementById('fileLabel').innerText = `📁 เลือกรูปแล้ว: ${file.name}`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        async function fetchStoreItems() {
+            const grid = document.getElementById('adminStoreGrid');
+            const { data, error } = await supabase
+                .from('store_items')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                grid.innerHTML = `<p style="grid-column: span 2; text-align: center; font-size: 12px; color: #ff4444;">ไม่สามารถโหลดข้อมูลสินค้าได้</p>`;
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                grid.innerHTML = `<p style="grid-column: span 2; text-align: center; font-size: 12px; color: var(--text-muted);">ยังไม่มีสินค้าในร้านค้า</p>`;
+                return;
+            }
+
+            grid.innerHTML = data.map(item => {
+                let effectText = 'ไม่มีผลฟื้นฟู';
+                if (item.effect_type === 'energy') effectText = `ฟื้นฟูพลังงาน +${item.effect_value}`;
+                else if (item.effect_type === 'food') effectText = `ฟื้นฟูอาหาร +${item.effect_value}`;
+
+                return `
+                    <div class="store-card">
+                        <div>
+                            <img src="${item.image_url || 'https://via.placeholder.com/150/000000/FFFFFF?text=Item'}" class="item-img" alt="Item">
+                            <div class="item-name">${item.name}</div>
+                            <div class="item-price">${Number(item.price).toLocaleString()} Silver</div>
+                            <div class="item-effect">${effectText}</div>
+                        </div>
+                        <button class="btn-delete" onclick="deleteStoreItem('${item.id}')">ลบสินค้า</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.createStoreItem = async function() {
+            const name = document.getElementById('itemName').value.trim();
+            const price = document.getElementById('itemPrice').value.trim();
+            const effectType = document.getElementById('effectType').value;
+            const effectValue = parseInt(document.getElementById('effectValue').value) || 0;
+            const description = document.getElementById('itemDesc').value.trim();
+
+            if (!selectedItemBase64 || !name || !price) {
+                showModal('ข้อผิดพลาด', 'กรุณาเลือกรูปภาพสินค้า ชื่อสินค้า และราคาให้ครบถ้วน');
+                return;
+            }
+
+            const { error } = await supabase.from('store_items').insert([{
+                image_url: selectedItemBase64,
+                name: name,
+                price: parseFloat(price),
+                effect_type: effectType,
+                effect_value: effectValue,
+                description: description
+            }]);
+
+            if (error) {
+                showModal('ข้อผิดพลาด', 'ไม่สามารถเพิ่มสินค้าได้: ' + error.message);
+                return;
+            }
+
+            // ล้างฟอร์ม
+            document.getElementById('itemImageFile').value = '';
+            document.getElementById('itemName').value = '';
+            document.getElementById('itemPrice').value = '';
+            document.getElementById('effectValue').value = '25';
+            document.getElementById('itemDesc').value = '';
+            document.getElementById('fileLabel').innerText = '📁 เลือกรูปภาพสินค้า...';
+            selectedItemBase64 = null;
+
+            showModal('สำเร็จ', 'วางขายสินค้าเรียบร้อยแล้ว');
+            fetchStoreItems();
+        }
+
+        window.deleteStoreItem = async function(itemId) {
+            const { error } = await supabase.from('store_items').delete().eq('id', itemId);
+            if (error) {
+                showModal('ข้อผิดพลาด', 'ไม่สามารถลบสินค้าได้: ' + error.message);
+                return;
+            }
+
+            showModal('สำเร็จ', 'ลบสินค้าออกจากร้านค้าเรียบร้อยแล้ว');
+            fetchStoreItems();
+        }
+
+        initAdminStore();
+    </script>
+</body>
+</html>
