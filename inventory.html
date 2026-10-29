@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vandermier A. - Inventory</title>
+    
+    <!-- PWA & Manifest Configuration -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0b0b0b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Vandermier">
+
+    <!-- Google Fonts & Tailwind CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --bg-color: #0b0b0b;
+            --card-bg: #141414;
+            --border-color: #262626;
+            --text-main: #f0f0f0;
+            --text-muted: #888888;
+            --accent: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            padding-bottom: 40px;
+        }
+
+        .header-nav {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            align-items: center;
+            margin-bottom: 25px;
+            gap: 15px;
+        }
+
+        .btn-back {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 8px 12px;
+            font-size: 11px;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .btn-back:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .app-title {
+            font-family: 'Cinzel', serif;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--accent);
+            text-align: center;
+            margin-right: 75px;
+            white-space: nowrap;
+        }
+
+        .wallet-box {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .wallet-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .wallet-balance {
+            font-family: 'Cinzel', serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .section-box {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .box-title {
+            font-family: 'Cinzel', serif;
+            font-size: 14px;
+            letter-spacing: 1px;
+            color: var(--accent);
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .inventory-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .inventory-row-card {
+            background: #000;
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            position: relative;
+        }
+
+        .inventory-row-card:hover {
+            border-color: var(--accent);
+        }
+
+        .item-img-container {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .item-img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border: 1px solid var(--border-color);
+            background: #111;
+        }
+
+        .item-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: rgba(0,0,0,0.9);
+            border: 1px solid var(--border-color);
+            color: #fff;
+            font-size: 9px;
+            padding: 1px 5px;
+        }
+
+        .item-details {
+            flex-grow: 1;
+            min-width: 0;
+        }
+
+        .item-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--accent);
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .item-effect {
+            font-size: 11px;
+            color: #4ade80;
+            margin-bottom: 2px;
+        }
+
+        .item-desc {
+            font-size: 10px;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .item-action-hint {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 1px solid var(--border-color);
+            padding: 6px 10px;
+            background: #111;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .inventory-row-card:hover .item-action-hint {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            width: 90%;
+            max-width: 380px;
+            text-align: center;
+        }
+
+        .modal-title {
+            font-family: 'Cinzel', serif;
+            font-size: 18px;
+            margin-bottom: 12px;
+            color: var(--accent);
+        }
+
+        .modal-message {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            background: var(--accent);
+            color: var(--bg-color);
+            border: none;
+            font-size: 12px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            width: 100%;
+            margin-bottom: 10px;
+            transition: opacity 0.3s;
+        }
+
+        .modal-btn:hover {
+            opacity: 0.85;
+        }
+
+        .modal-btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+        }
+
+        .modal-btn-secondary:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            background-color: #000;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            font-size: 13px;
+            outline: none;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header-nav">
+            <a href="home.html" class="btn-back">กลับหน้าหลัก</a>
+            <h1 class="app-title">Inventory</h1>
+        </div>
+
+        <div class="wallet-box">
+            <span class="wallet-label">ยอดเงินคงเหลือของคุณ</span>
+            <span class="wallet-balance" id="userSilverBalance">0 Silver</span>
+        </div>
+
+        <div class="section-box">
+            <h3 class="box-title">คลังเก็บของ</h3>
+            <p style="font-size: 11px; color: var(--text-muted); text-align: center; margin-bottom: 15px;">
+                คลิกที่รายการไอเท็มเพื่อเลือกใช้งานหรือส่งมอบให้เพื่อน
+            </p>
+            <div class="inventory-list" id="inventory-grid">
+                <p style="text-align: center; font-size: 12px; color: var(--text-muted);">กำลังโหลดคลังเก็บของ...</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="actionModal">
+        <div class="modal-box">
+            <h3 class="modal-title" id="action-modal-title">จัดการไอเท็ม</h3>
+            <p class="modal-message" id="action-modal-desc">เลือกรายการที่คุณต้องการทำกับไอเท็มชิ้นนี้</p>
+            <button class="modal-btn" onclick="triggerUseItem()">ใช้ไอเท็ม</button>
+            <button class="modal-btn modal-btn-secondary" onclick="triggerOpenSendModal()">ส่งให้เพื่อน</button>
+            <button class="modal-btn modal-btn-secondary" style="margin-top: 10px; border-color: #444;" onclick="closeActionModal()">ปิด</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="sendModal">
+        <div class="modal-box">
+            <h3 class="modal-title" id="modal-item-title">ส่งไอเท็ม</h3>
+            <p class="modal-message">เลือกเพื่อนที่ต้องการส่งไอเท็มนี้ให้ (ครั้งละ 1 ชิ้น)</p>
+            <select id="friend-select">
+                <option value="">กำลังโหลดรายชื่อเพื่อน...</option>
+            </select>
+            <div style="display: flex; gap: 10px;">
+                <button class="modal-btn modal-btn-secondary" style="flex: 1;" onclick="closeSendModal()">ย้อนกลับ</button>
+                <button class="modal-btn" style="flex: 1;" id="confirm-send-btn" onclick="executeSendItem()">ยืนยัน</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="customModal">
+        <div class="modal-box">
+            <h3 class="modal-title" id="modalTitle">แจ้งเตือน</h3>
+            <p class="modal-message" id="modalMessage">ข้อความแจ้งเตือน...</p>
+            <button class="modal-btn" onclick="closeModal()">ตกลง</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { supabase } from './supabase-config.js';
+
+        let currentUser = null;
+        let userProfile = null;
+        let inventoryItems = [];
+        let selectedItem = null;
+
+        window.showModal = function(title, message) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMessage').innerText = message;
+            document.getElementById('customModal').classList.add('active');
+        }
+
+        window.closeModal = function() {
+            document.getElementById('customModal').classList.remove('active');
+        }
+
+        async function initInventory() {
+            const { data: { session }, error: authError } = await supabase.auth.getSession();
+            if (authError || !session) {
+                window.location.href = 'index.html';
+                return;
+            }
+            currentUser = session.user;
+            await fetchUserProfile();
+            await fetchInventory();
+        }
+
+        async function fetchUserProfile() {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', currentUser.id)
+                .single();
+            if (!error && data) {
+                userProfile = data;
+                document.getElementById('userSilverBalance').innerText = `${Number(data.silver || 0).toLocaleString()} Silver`;
+            }
+        }
+
+        async function fetchInventory() {
+            const grid = document.getElementById('inventory-grid');
+            const { data, error } = await supabase
+                .from('inventory')
+                .select('*')
+                .eq('user_id', currentUser.id)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                grid.innerHTML = `<p style="text-align: center; font-size: 12px; color: #ff4444;">ไม่สามารถโหลดข้อมูลคลังเก็บของได้</p>`;
+                return;
+            }
+
+            inventoryItems = data || [];
+            renderInventory();
+        }
+
+        function renderInventory() {
+            const grid = document.getElementById('inventory-grid');
+            if (inventoryItems.length === 0) {
+                grid.innerHTML = `
+                    <p style="text-align: center; font-size: 12px; color: var(--text-muted);">
+                        คลังเก็บของว่างเปล่า สามารถไปเลือกซื้อสินค้าได้ที่ Store
+                    </p>
+                `;
+                return;
+            }
+
+            grid.innerHTML = inventoryItems.map(item => {
+                let effectText = 'ไม่มีผลฟื้นฟู';
+                if (item.effect_type === 'energy') effectText = `ฟื้นฟูพลังงาน +${item.effect_value}`;
+                else if (item.effect_type === 'hp') effectText = `ฟื้นฟู HP +${item.effect_value}`;
+                else if (item.effect_type === 'food') effectText = `ฟื้นฟูอาหาร +${item.effect_value}`;
+
+                return `
+                    <div class="inventory-row-card" onclick="openActionModal('${item.id}')">
+                        <div class="item-img-container">
+                            <img src="${item.image_url || 'https://via.placeholder.com/150/000000/FFFFFF?text=Item'}" class="item-img" alt="Item">
+                            <span class="item-badge">x${item.quantity}</span>
+                        </div>
+                        <div class="item-details">
+                            <div class="item-name">${item.item_name}</div>
+                            <div class="item-effect">${effectText}</div>
+                            <div class="item-desc">${item.description || 'ไม่มีรายละเอียด'}</div>
+                        </div>
+                        <div class="item-action-hint">จัดการ</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.openActionModal = function(itemId) {
+            selectedItem = inventoryItems.find(i => i.id === itemId);
+            if (!selectedItem) return;
+
+            document.getElementById('action-modal-title').innerText = selectedItem.item_name;
+            document.getElementById('action-modal-desc').innerText = `มีจำนวนในคลัง: ${selectedItem.quantity} ชิ้น`;
+            document.getElementById('actionModal').classList.add('active');
+        }
+
+        window.closeActionModal = function() {
+            document.getElementById('actionModal').classList.remove('active');
+        }
+
+        window.triggerUseItem = async function() {
+            closeActionModal();
+            if (!selectedItem) return;
+
+            await fetchUserProfile();
+            const item = selectedItem;
+
+            if (!item.effect_type || item.effect_type === 'none') {
+                showModal('แจ้งเตือน', 'ไอเท็มชิ้นนี้ไม่สามารถกดใช้งานเพื่อฟื้นฟูสเตตัสได้');
+                return;
+            }
+
+            let statType = item.effect_type;
+            let healAmount = item.effect_value || 25;
+
+            if (statType === 'hp') {
+                if (userProfile.hp >= userProfile.hp_max) {
+                    showModal('ไม่สามารถใช้งานได้', 'หลอดเลือด HP เต็มอยู่แล้ว!');
+                    return;
+                }
+            } else if (statType === 'energy') {
+                if (userProfile.energy >= userProfile.energy_max) {
+                    showModal('ไม่สามารถใช้งานได้', 'หลอดพลังงานเต็มอยู่แล้ว!');
+                    return;
+                }
+            } else if (statType === 'food') {
+                if (userProfile.food >= userProfile.food_max) {
+                    showModal('ไม่สามารถใช้งานได้', 'หลอดอาหารเต็มอยู่แล้ว ไม่สามารถกินเพิ่มได้!');
+                    return;
+                }
+            }
+
+            let updateField = {};
+            if (statType === 'food') {
+                updateField = { food: Math.min(userProfile.food_max, userProfile.food + healAmount) };
+            } else if (statType === 'energy') {
+                updateField = { energy: Math.min(userProfile.energy_max, userProfile.energy + healAmount) };
+            } else if (statType === 'hp') {
+                updateField = { hp: Math.min(userProfile.hp_max, userProfile.hp + healAmount) };
+            }
+
+            const { error: profileError } = await supabase
+                .from('profiles')
+                .update(updateField)
+                .eq('id', currentUser.id);
+
+            if (profileError) {
+                showModal('เกิดข้อผิดพลาด', 'ไม่สามารถใช้ไอเท็มได้');
+                return;
+            }
+
+            if (item.quantity > 1) {
+                await supabase
+                    .from('inventory')
+                    .update({ quantity: item.quantity - 1 })
+                    .eq('id', item.id);
+            } else {
+                await supabase
+                    .from('inventory')
+                    .delete()
+                    .eq('id', item.id);
+            }
+
+            showModal('สำเร็จ', `ใช้งาน ${item.item_name} สำเร็จ! ฟื้นฟู ${statType.toUpperCase()} +${healAmount}`);
+            await fetchInventory();
+        }
+
+        window.triggerOpenSendModal = async function() {
+            closeActionModal();
+            if (!selectedItem) return;
+
+            document.getElementById('modal-item-title').innerText = `ส่งไอเท็ม: ${selectedItem.item_name}`;
+            
+            const select = document.getElementById('friend-select');
+            select.innerHTML = `<option value="">กำลังโหลดรายชื่อเพื่อน...</option>`;
+            
+            const { data, error } = await supabase
+                .from('friends')
+                .select('user_id, friend_id, status')
+                .or(`user_id.eq.${currentUser.id},friend_id.eq.${currentUser.id}`)
+                .eq('status', 'accepted');
+
+            if (error || !data || data.length === 0) {
+                select.innerHTML = `<option value="">ไม่มีรายชื่อเพื่อนที่สามารถส่งของให้ได้</option>`;
+                document.getElementById('sendModal').classList.add('active');
+                return;
+            }
+
+            const friendIds = data.map(f => f.user_id === currentUser.id ? f.friend_id : f.user_id);
+            const { data: profilesData } = await supabase
+                .from('profiles')
+                .select('id, name, full_name, custom_id')
+                .in('id', friendIds);
+
+            if (profilesData && profilesData.length > 0) {
+                select.innerHTML = profilesData.map(f => `<option value="${f.id}">${f.full_name || f.name} (ID: ${f.custom_id})</option>`).join('');
+            } else {
+                select.innerHTML = `<option value="">ไม่พบเพื่อนในระบบ</option>`;
+            }
+
+            document.getElementById('sendModal').classList.add('active');
+        }
+
+        window.closeSendModal = function() {
+            document.getElementById('sendModal').classList.remove('active');
+        }
+
+        window.executeSendItem = async function() {
+            const recipientId = document.getElementById('friend-select').value;
+            if (!recipientId) {
+                showModal('แจ้งเตือน', 'กรุณาเลือกเพื่อนที่ต้องการส่งไอเท็มให้');
+                return;
+            }
+            if (!selectedItem) return;
+
+            const btn = document.getElementById('confirm-send-btn');
+            btn.disabled = true;
+            btn.innerText = 'กำลังส่ง...';
+
+            const { data, error } = await supabase.rpc('transfer_item_to_friend', {
+                p_inventory_id: selectedItem.id,
+                p_recipient_id: recipientId
+            });
+
+            btn.disabled = false;
+            btn.innerText = 'ยืนยัน';
+            closeSendModal();
+
+            if (error) {
+                showModal('เกิดข้อผิดพลาด', error.message);
+            } else if (data && data.success) {
+                showModal('สำเร็จ', data.message);
+                await fetchInventory();
+            } else {
+                showModal('แจ้งเตือน', data?.message || 'ไม่สามารถส่งไอเท็มได้');
+            }
+        }
+
+        initInventory();
+    </script>
+</body>
+</html>
