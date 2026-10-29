@@ -1,0 +1,16 @@
+{
+  "name": "Vandermier A.",
+  "short_name": "Vandermier",
+  "start_url": "home.html",
+  "display": "standalone",
+  "background_color": "#0b0b0b",
+  "theme_color": "#0b0b0b",
+  "icons": [
+    {
+      "src": "https://res.cloudinary.com/bbyhhmnr/image/upload/v1793258979/file_000000007ca48211808a78da33bf6f38.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
