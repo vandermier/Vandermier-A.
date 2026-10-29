@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vandermier A. - Manage Users</title>
+    
+    <!-- PWA & Manifest Configuration -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0b0b0b">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Vandermier">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #0b0b0b;
+            --card-bg: #141414;
+            --border-color: #262626;
+            --text-main: #f0f0f0;
+            --text-muted: #888888;
+            --accent: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            padding-bottom: 40px;
+        }
+
+        .header-nav {
+            display: grid;
+            grid-template-columns: 110px 1fr;
+            align-items: center;
+            margin-bottom: 25px;
+            gap: 10px;
+        }
+
+        .btn-back {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 8px 10px;
+            font-size: 11px;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            transition: all 0.3s;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .btn-back:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .app-title {
+            font-family: 'Cinzel', serif;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--accent);
+            text-transform: uppercase;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .section-box {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .box-title {
+            font-family: 'Cinzel', serif;
+            font-size: 14px;
+            letter-spacing: 1px;
+            color: var(--accent);
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .user-card-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #000;
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .user-card-item:hover {
+            border-color: var(--accent);
+        }
+
+        .user-card-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar-sm {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid var(--border-color);
+            background: #222;
+        }
+
+        .user-info h4 {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .user-info p {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 11px;
+            cursor: pointer;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            text-transform: uppercase;
+            transition: all 0.3s;
+        }
+
+        .btn-sm:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            background-color: #000;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--accent);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+            text-align: left;
+        }
+
+        .modal-title {
+            font-family: 'Cinzel', serif;
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--accent);
+            text-align: center;
+        }
+
+        .modal-message {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        .modal-btn {
+            padding: 8px 24px;
+            background: var(--accent);
+            color: var(--bg-color);
+            border: none;
+            font-size: 12px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            width: 100%;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Header Navigation -->
+        <div class="header-nav">
+            <a href="admin.html" class="btn-back">กลับหน้าแอดมิน</a>
+            <h1 class="app-title">Manage Users</h1>
+        </div>
+
+        <!-- รายชื่อผู้เล่นทั้งหมด -->
+        <div class="section-box">
+            <h3 class="box-title">รายชื่อสมาชิกในสถาบัน</h3>
+            <div class="form-group" style="margin-bottom: 15px;">
+                <input type="text" id="searchUserInput" placeholder="ค้นหาด้วยชื่อ หรือ ID 8 หลัก..." oninput="filterUsers()">
+            </div>
+            <div class="list-container" id="usersListContainer">
+                <p style="text-align: center; font-size: 12px; color: var(--text-muted);">กำลังโหลดรายชื่อผู้เล่น...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal แก้ไขข้อมูลผู้เล่น -->
+    <div class="modal-overlay" id="editUserModal">
+        <div class="modal-box">
+            <h3 class="modal-title" id="editModalTitle">จัดการข้อมูลผู้เล่น</h3>
+            
+            <input type="hidden" id="editUserId">
+
+            <div class="form-group">
+                <label>จำนวนชัยชนะสะสม (Wins)</label>
+                <input type="number" id="editWins" min="0" placeholder="ระบุจำนวนชัยชนะ">
+            </div>
+
+            <div class="form-group">
+                <label>คะแนนความประพฤติ (Conduct Score) <span id="currentConductLabel" style="color: var(--accent);"></span></label>
+                <input type="text" id="editConductScore" placeholder="เช่น +5, -10 หรือระบุตัวเลขใหม่ตรงๆ">
+                <small style="font-size: 10px; color: var(--text-muted); display: block; margin-top: 4px;">ใส่เครื่องหมาย + หรือ - เพื่อบวก/ลบจากคะแนนเดิม หรือใส่ตัวเลขตรงๆ เพื่อเปลี่ยนค่า</small>
+            </div>
+
+            <div class="form-group">
+                <label>สถานะ (Status)</label>
+                <input type="text" id="editStatus" placeholder="เช่น Pride-Leader, Novice-Celest ฯลฯ">
+            </div>
+
+            <div class="form-group">
+                <label>หอพัก (Dorm)</label>
+                <input type="text" id="editDorm" placeholder="ระบุชื่อหอพัก...">
+            </div>
+
+            <div class="form-group">
+                <label>ชมรม (Club)</label>
+                <input type="text" id="editClub" placeholder="ระบุชื่อชมรม...">
+            </div>
+
+            <button class="modal-btn" onclick="saveUserData()">บันทึกการเปลี่ยนแปลง</button>
+            <button class="modal-btn" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-main);" onclick="closeEditModal()">ปิดหน้าต่าง</button>
+        </div>
+    </div>
+
+    <!-- Modal แจ้งเตือนทั่วไป -->
+    <div class="modal-overlay" id="customModal">
+        <div class="modal-box" style="text-align: center;">
+            <h3 class="modal-title" id="modalTitle">แจ้งเตือน</h3>
+            <p class="modal-message" id="modalMessage">ข้อความแจ้งเตือน...</p>
+            <button class="modal-btn" style="width: auto;" onclick="closeModal()">ตกลง</button>
+        </div>
+    </div>
+
+    <!-- Script จัดการผู้เล่น -->
+    <script type="module">
+        import { supabase } from './supabase-config.js';
+
+        let allUsers = [];
+        let selectedUserOriginalConduct = 100;
+
+        window.showModal = function(title, message) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMessage').innerText = message;
+            document.getElementById('customModal').classList.add('active');
+        }
+
+        window.closeModal = function() {
+            document.getElementById('customModal').classList.remove('active');
+        }
+
+        async function initAdminUsers() {
+            const { data: { session }, error } = await supabase.auth.getSession();
+            if (error || !session) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            if (session.user.email !== 'adminzelisanya@gmail.com') {
+                window.location.href = 'home.html';
+                return;
+            }
+
+            fetchUsers();
+        }
+
+        async function fetchUsers() {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .order('wins', { ascending: false });
+
+            if (error) {
+                document.getElementById('usersListContainer').innerHTML = `<p style="text-align: center; font-size: 12px; color: #ff4444;">ไม่สามารถโหลดข้อมูลผู้เล่นได้</p>`;
+                return;
+            }
+
+            allUsers = data || [];
+            renderUsers(allUsers);
+        }
+
+        function renderUsers(users) {
+            const container = document.getElementById('usersListContainer');
+            if (users.length === 0) {
+                container.innerHTML = `<p style="text-align: center; font-size: 12px; color: var(--text-muted);">ไม่พบข้อมูลผู้เล่นในระบบ</p>`;
+                return;
+            }
+
+            container.innerHTML = users.map(u => `
+                <div class="user-card-item" onclick="openEditModal('${u.id}')">
+                    <div class="user-card-left">
+                        <img src="${u.avatar_url || 'https://via.placeholder.com/150/000000/FFFFFF?text=V'}" class="avatar-sm">
+                        <div class="user-info">
+                            <h4>${u.full_name || u.name}</h4>
+                            <p>ID: ${u.custom_id} | ชัยชนะ: ${u.wins || 0} | ความประพฤติ: ${u.conduct_score ?? 100}</p>
+                        </div>
+                    </div>
+                    <button class="btn-sm">จัดการ</button>
+                </div>
+            `).join('');
+        }
+
+        window.filterUsers = function() {
+            const keyword = document.getElementById('searchUserInput').value.toLowerCase();
+            const filtered = allUsers.filter(u => 
+                (u.name && u.name.toLowerCase().includes(keyword)) ||
+                (u.full_name && u.full_name.toLowerCase().includes(keyword)) ||
+                (u.custom_id && u.custom_id.includes(keyword))
+            );
+            renderUsers(filtered);
+        }
+
+        function calculateRank(wins) {
+            if (wins >= 3001) return 'Apex';
+            if (wins >= 2001) return 'Prime';
+            if (wins >= 1501) return 'Prestige';
+            if (wins >= 1001) return 'Elite';
+            if (wins >= 701) return 'Expert';
+            if (wins >= 501) return 'Veter';
+            if (wins >= 301) return 'Adept';
+            if (wins >= 151) return 'Initiate';
+            if (wins >= 51) return 'Aspirant';
+            return 'Novice';
+        }
+
+        window.openEditModal = function(userId) {
+            const user = allUsers.find(u => u.id === userId);
+            if (!user) return;
+
+            selectedUserOriginalConduct = user.conduct_score ?? 100;
+
+            document.getElementById('editUserId').value = user.id;
+            document.getElementById('editModalTitle').innerText = `จัดการ: ${user.full_name || user.name}`;
+            document.getElementById('editWins').value = user.wins || 0;
+            document.getElementById('currentConductLabel').innerText = `(ปัจจุบัน: ${selectedUserOriginalConduct})`;
+            document.getElementById('editConductScore').value = '';
+            document.getElementById('editStatus').value = user.status || 'Novice-Celest';
+            document.getElementById('editDorm').value = user.dorm || '';
+            document.getElementById('editClub').value = user.club_name || '';
+
+            document.getElementById('editUserModal').classList.add('active');
+        }
+
+        window.closeEditModal = function() {
+            document.getElementById('editUserModal').classList.remove('active');
+        }
+
+        window.saveUserData = async function() {
+            const userId = document.getElementById('editUserId').value;
+            const wins = parseInt(document.getElementById('editWins').value) || 0;
+            const status = document.getElementById('editStatus').value.trim();
+            const dorm = document.getElementById('editDorm').value.trim();
+            const club_name = document.getElementById('editClub').value.trim();
+
+            const conductInputStr = document.getElementById('editConductScore').value.trim();
+            let newConductScore = selectedUserOriginalConduct;
+
+            if (conductInputStr !== '') {
+                if (conductInputStr.startsWith('+')) {
+                    const addVal = parseInt(conductInputStr.substring(1)) || 0;
+                    newConductScore = selectedUserOriginalConduct + addVal;
+                } else if (conductInputStr.startsWith('-')) {
+                    const subVal = parseInt(conductInputStr.substring(1)) || 0;
+                    newConductScore = Math.max(0, selectedUserOriginalConduct - subVal);
+                } else {
+                    const directVal = parseInt(conductInputStr);
+                    if (!isNaN(directVal)) {
+                        newConductScore = Math.max(0, directVal);
+                    }
+                }
+            }
+
+            const rank_name = calculateRank(wins);
+
+            const { error } = await supabase
+                .from('profiles')
+                .update({
+                    wins: wins,
+                    rank_name: rank_name,
+                    conduct_score: newConductScore,
+                    status: status,
+                    dorm: dorm,
+                    club_name: club_name
+                })
+                .eq('id', userId);
+
+            if (error) {
+                showModal('ข้อผิดพลาด', 'ไม่สามารถอัปเดตข้อมูลได้: ' + error.message);
+                return;
+            }
+
+            closeEditModal();
+            showModal('สำเร็จ', 'อัปเดตข้อมูลผู้เล่นเรียบร้อยแล้ว');
+            fetchUsers();
+        }
+
+        initAdminUsers();
+    </script>
+</body>
+</html>
